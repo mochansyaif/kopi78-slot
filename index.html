@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kopi78 Slot Game</title>
+  <style>
+    body {
+      background-color: #2b1d0e;
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+    }
+    .logo {
+      width: 100px;
+      margin-bottom: 20px;
+    }
+    .slot-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .reel {
+      width: 80px;
+      height: 80px;
+      background-color: #4b3621;
+      margin: 0 10px;
+      border: 3px solid #c19a6b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      border-radius: 10px;
+    }
+    button {
+      padding: 10px 30px;
+      font-size: 1.2em;
+      background-color: #c19a6b;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      color: #2b1d0e;
+      font-weight: bold;
+    }
+    .credits {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+    .bonus-daily {
+      margin-top: 15px;
+      font-size: 0.9em;
+    }
+    .notification {
+      margin-top: 10px;
+      font-size: 1em;
+      color: yellow;
+    }
+    .login-section {
+      margin-bottom: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-section">
+    <input type="text" id="username" placeholder="Enter username" />
+    <button onclick="loginUser()">Login</button>
+  </div>
+
+  <div id="game" class="hidden">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/A_small_cup_of_coffee.JPG/1200px-A_small_cup_of_coffee.JPG" alt="Kopi78 Logo" class="logo" />
+    <h1>Kopi78 Slot</h1>
+    <div class="slot-container">
+      <div class="reel" id="reel1">☕</div>
+      <div class="reel" id="reel2">🍩</div>
+      <div class="reel" id="reel3">🥐</div>
+    </div>
+    <button onclick="spin()">SPIN</button>
+    <div class="credits" id="credits">Credits: 10</div>
+    <div class="bonus-daily" id="bonus">Daily Bonus: +3 Credits</div>
+    <div class="notification" id="notification"></div>
+  </div>
+
+  <audio id="spinSound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+  <audio id="jackpotSound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3" preload="auto"></audio>
+
+  <script>
+    const symbols = ['☕', '🍩', '🥐', '🍪', '🍫'];
+    let user = null;
+    let credits = 0;
+
+    function updateCreditsDisplay() {
+      document.getElementById("credits").textContent = `Credits: ${credits}`;
+      localStorage.setItem(`${user}-credits`, credits);
+    }
+
+    function spin() {
+      if (credits <= 0) {
+        alert("No more credits! Refresh or wait for bonus.");
+        return;
+      }
+
+      document.getElementById("spinSound").play();
+
+      const r1 = symbols[Math.floor(Math.random() * symbols.length)];
+      const r2 = symbols[Math.floor(Math.random() * symbols.length)];
+      const r3 = symbols[Math.floor(Math.random() * symbols.length)];
+
+      document.getElementById("reel1").textContent = r1;
+      document.getElementById("reel2").textContent = r2;
+      document.getElementById("reel3").textContent = r3;
+
+      credits--;
+
+      if (r1 === r2 && r2 === r3) {
+        credits += 5;
+        document.getElementById("jackpotSound").play();
+        notify("JACKPOT! +5 Credits!");
+      }
+
+      updateCreditsDisplay();
+    }
+
+    function loginUser() {
+      const input = document.getElementById("username").value.trim();
+      if (!input) return alert("Please enter username.");
+      user = input;
+
+      document.querySelector(".login-section").classList.add("hidden");
+      document.getElementById("game").classList.remove("hidden");
+
+      credits = parseInt(localStorage.getItem(`${user}-credits`) || 10);
+      const today = new Date().toDateString();
+      const lastBonus = localStorage.getItem(`${user}-last-bonus`);
+
+      if (today !== lastBonus) {
+        credits += 3;
+        localStorage.setItem(`${user}-last-bonus`, today);
+        notify("Daily bonus claimed! +3 Credits");
+      } else {
+        document.getElementById("bonus").style.display = 'none';
+      }
+
+      updateCreditsDisplay();
+    }
+
+    function notify(msg) {
+      const n = document.getElementById("notification");
+      n.textContent = msg;
+      setTimeout(() => { n.textContent = ""; }, 4000);
+    }
+  </script>
+</body>
+</html>
